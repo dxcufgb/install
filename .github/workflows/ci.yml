@@ -1,0 +1,32 @@
+# Checks the installer on every push and pull request: shellcheck, and test/run.sh against a fake GitHub API.
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test installer
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: shellcheck
+        run: shellcheck install.sh test/run.sh
+
+      # install.sh refuses to run without root, so the tests run with sudo (they only write to a temp folder).
+      - name: Tests
+        run: sudo bash test/run.sh
