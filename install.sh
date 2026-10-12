@@ -170,8 +170,9 @@ main() {
   local archive_hit sums_hit archive_url sums_url
   archive_hit="$(json_asset "$archive" <"$WORK/release.json")" || die "could not read the release's file list"
   sums_hit="$(json_asset SHA256SUMS.txt <"$WORK/release.json")" || die "could not read the release's file list"
-  [ -n "$archive_hit" ] && [ -n "$sums_hit" ] ||
+  if [ -z "$archive_hit" ] || [ -z "$sums_hit" ]; then
     die "release $tag has no $archive or SHA256SUMS.txt (releases made before the unified installer). Download and install it by hand."
+  fi
   archive_url="${archive_hit%% *}"
   archive="${archive_hit#* }"  # the name as published (its case may differ)
   sums_url="${sums_hit%% *}"

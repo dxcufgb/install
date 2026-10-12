@@ -3,7 +3,7 @@
 # python3, curl, tar. Nothing outside a temporary folder is changed: the fake release's install.sh only writes
 # a report file.
 # pass/bad never fail, so "check && pass || bad" is safe here; cleanup runs from the EXIT trap.
-# shellcheck disable=SC2015,SC2329
+# shellcheck disable=SC2015,SC2317,SC2329
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 INSTALLER="$HERE/../install.sh"
