@@ -26,6 +26,7 @@ twitchdiscordbot|dxcufgb/TwitchDiscordBot|1
 comicsbot|dxcufgb/DiscordComicsBot|1
 foundryvtt-discord-integration|dxcufgb/FoundryVTT-discord-integration|0
 foundry-release-proxy|dxcufgb/FoundryVTT-Private-Github-proxy|1
+foundry-world-backup|dxcufgb/FoundryVTT-world-backup-to-git|1
 "
 
 API="https://api.github.com"

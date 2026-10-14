@@ -13,8 +13,9 @@ curl -fsSL https://raw.githubusercontent.com/dxcufgb/install/main/install.sh | s
 | `comicsbot` | [DiscordComicsBot](https://github.com/dxcufgb/DiscordComicsBot) | yes (private) |
 | `foundryvtt-discord-integration` | [FoundryVTT-discord-integration](https://github.com/dxcufgb/FoundryVTT-discord-integration) | no |
 | `foundry-release-proxy` | [FoundryVTT-Private-Github-proxy](https://github.com/dxcufgb/FoundryVTT-Private-Github-proxy) | yes (private) |
+| `foundry-world-backup` | [FoundryVTT-world-backup-to-git](https://github.com/dxcufgb/FoundryVTT-world-backup-to-git) | yes (private) |
 
-`[options]` go to that release's own `install.sh`. They are the same for all four:
+`[options]` go to that release's own `install.sh`. They are the same for all five:
 
 | Option | Meaning |
 |---|---|
@@ -39,7 +40,7 @@ Questions are asked on your terminal, so the interactive installers work through
 
 ## Private repositories: the token
 
-Three of the repositories are private, so the installer needs a GitHub token that can read that one repository:
+Four of the repositories are private, so the installer needs a GitHub token that can read that one repository:
 
 1. GitHub → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
 2. Resource owner `dxcufgb`; **Repository access → Only select repositories** → the repository you install.
