@@ -7,6 +7,8 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 INSTALLER="$HERE/../install.sh"
+# The cases set INSTALL_GITHUB_TOKEN themselves where they need one; one from the caller's environment must not leak in.
+unset INSTALL_GITHUB_TOKEN
 T="$(mktemp -d)"
 PIDS=()
 cleanup() { for p in "${PIDS[@]}"; do kill "$p" 2>/dev/null || true; done; rm -rf "$T"; }
@@ -58,26 +60,30 @@ if run "$URL" foundryvtt-discord-integration --yes --auto-update; then
 else bad "public install failed: $(cat "$T/out")"; fi
 
 # 3. private repo without a token and without a terminal: clear error, nothing run
-D="$T/private"; mkdir -p "$D"; make_release "$D" comicsbot 2.4.0
+# Every real product is public now; a test-only private one keeps the private path covered.
+export INSTALL_TEST_PRODUCTS="privatebot|dxcufgb/PrivateBot|1"
+D="$T/private"; mkdir -p "$D"; make_release "$D" privatebot 2.4.0
 start_server "$D" private
 PRIV="$URL"
-if run "$PRIV" comicsbot; then bad "private without token accepted"; else grep -q INSTALL_GITHUB_TOKEN "$T/out" && [ ! -e "$D/report" ] && pass "private needs a token" || bad "private token message"; fi
+if run "$PRIV" privatebot; then bad "private without token accepted"; else grep -q INSTALL_GITHUB_TOKEN "$T/out" && [ ! -e "$D/report" ] && pass "private needs a token" || bad "private token message"; fi
 
 # 4. private repo, wrong token: 404 explained
-if INSTALL_GITHUB_TOKEN=wrong run "$PRIV" comicsbot; then bad "wrong token accepted"; else grep -q "read access" "$T/out" && pass "wrong token explained" || bad "wrong token message: $(cat "$T/out")"; fi
+if INSTALL_GITHUB_TOKEN=wrong run "$PRIV" privatebot; then bad "wrong token accepted"; else grep -q "read access" "$T/out" && pass "wrong token explained" || bad "wrong token message: $(cat "$T/out")"; fi
 
 # 5. private repo, right token: token reaches the installer in INSTALL_GITHUB_TOKEN, never on a command line
-if INSTALL_GITHUB_TOKEN=test-token run "$PRIV" comicsbot --help; then
+if INSTALL_GITHUB_TOKEN=test-token run "$PRIV" privatebot --help; then
   grep -q '^token=test-token$' "$D/report" && grep -q '^args=--help$' "$D/report" && pass "private install with token" || bad "private report"
   grep -q test-token "$T/out" && bad "token printed" || pass "token not printed"
 else bad "private install failed: $(cat "$T/out")"; fi
 
 # 6. redirect to plain http is refused, and the token never went to the storage address
-rm -f "$D/report"; echo "comicsbot-2.4.0-linux.tar.gz" >"$D/redirect-http"
-if INSTALL_GITHUB_TOKEN=test-token run "$PRIV" comicsbot; then bad "http redirect accepted"; else
+rm -f "$D/report"; echo "privatebot-2.4.0-linux.tar.gz" >"$D/redirect-http"
+if INSTALL_GITHUB_TOKEN=test-token run "$PRIV" privatebot; then bad "http redirect accepted"; else
   grep -q "non-HTTPS" "$T/out" && [ ! -e "$D/report" ] && pass "http redirect refused" || bad "http redirect message: $(cat "$T/out")"; fi
 grep -q '^/storage/.* auth$' "$D/auth.log" && bad "token sent to storage" || pass "no token to storage"
 rm -f "$D/redirect-http"
+
+unset INSTALL_TEST_PRODUCTS
 
 # 7. checksum mismatch: refused, nothing run
 D="$T/corrupt"; mkdir -p "$D"; make_release "$D" foundryvtt-discord-integration 1.4.1 corrupt
@@ -116,7 +122,15 @@ start_server "$D" private
 if INSTALL_GITHUB_TOKEN=test-token run "$URL" comicsbot; then bad "wrong top folder accepted"; else
   grep -q "unexpected top folder" "$T/out" && [ ! -e "$D/report" ] && pass "wrong top folder refused" || bad "wrong top message: $(cat "$T/out")"; fi
 
-# 12. no temporary folders left behind
+# 12. formerly private products are public now: installed without a token and without a terminal
+D="$T/nowpublic"; mkdir -p "$D"; make_release "$D" comicsbot 2.5.0
+start_server "$D" public
+if run "$URL" comicsbot --yes; then
+  grep -q '^token=<none>$' "$D/report" && ! grep -q ' auth$' "$D/auth.log" && pass "comicsbot installs without a token" || bad "comicsbot public report"
+else bad "comicsbot public install failed: $(cat "$T/out")"; fi
+list="$(bash "$INSTALLER" --list)"; grep -q "needs a token" <<<"$list" && bad "--list still says a token is needed" || pass "--list shows no private repository"
+
+# 13. no temporary folders left behind
 ls -d /tmp/dxcufgb-install.* >/dev/null 2>&1 && bad "temporary folder left" || pass "temporary folders removed"
 
 exit $fail
