@@ -7,6 +7,8 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 INSTALLER="$HERE/../install.sh"
+# The cases set INSTALL_GITHUB_TOKEN themselves where they need one; one from the caller's environment must not leak in.
+unset INSTALL_GITHUB_TOKEN
 T="$(mktemp -d)"
 PIDS=()
 cleanup() { for p in "${PIDS[@]}"; do kill "$p" 2>/dev/null || true; done; rm -rf "$T"; }
