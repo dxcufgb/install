@@ -12,7 +12,8 @@
 #   3. unpacks it into a new temporary folder and runs <name>-<version>/install.sh as root;
 #   4. deletes the temporary folder.
 #
-# Private repositories need a fine-grained GitHub token with read-only "Contents" access to that repository.
+# All listed repositories are public; none needs a token. A private repository (should one be listed) needs a
+# fine-grained GitHub token with read-only "Contents" access to that repository.
 # It is read from the environment variable INSTALL_GITHUB_TOKEN or asked for (input hidden). It is sent only to
 # api.github.com (never to the storage server GitHub redirects downloads to), never put on a command line or in
 # a log, and handed to the release's installer in INSTALL_GITHUB_TOKEN so it can offer to use it for automatic
@@ -22,16 +23,22 @@ umask 077
 
 # name | GitHub repository | private (1) or public (0)
 PRODUCTS="
-twitchdiscordbot|dxcufgb/TwitchDiscordBot|1
-comicsbot|dxcufgb/DiscordComicsBot|1
+twitchdiscordbot|dxcufgb/TwitchDiscordBot|0
+comicsbot|dxcufgb/DiscordComicsBot|0
 foundryvtt-discord-integration|dxcufgb/FoundryVTT-discord-integration|0
-foundry-release-proxy|dxcufgb/FoundryVTT-Private-Github-proxy|1
-foundry-world-backup|dxcufgb/FoundryVTT-world-backup-to-git|1
+foundry-release-proxy|dxcufgb/FoundryVTT-Private-Github-proxy|0
+foundry-world-backup|dxcufgb/FoundryVTT-world-backup-to-git|0
 "
 
 API="https://api.github.com"
 # Tests only: point at a fake API (plain http allowed there). Never set this for a real install.
 if [ -n "${INSTALL_TEST_API_URL:-}" ]; then API="$INSTALL_TEST_API_URL"; fi
+# Tests only: extra product lines (the real list has no private repository any more, but the private path stays
+# supported and tested). Ignored unless INSTALL_TEST_API_URL is set too.
+if [ -n "${INSTALL_TEST_API_URL:-}" ] && [ -n "${INSTALL_TEST_PRODUCTS:-}" ]; then
+  PRODUCTS="$PRODUCTS$INSTALL_TEST_PRODUCTS
+"
+fi
 MAX_BYTES=$((300 * 1024 * 1024))
 
 die() { echo "install: $*" >&2; exit 1; }

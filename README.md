@@ -7,13 +7,13 @@ latest GitHub release:
 curl -fsSL https://raw.githubusercontent.com/dxcufgb/install/main/install.sh | sudo bash -s <name> [options]
 ```
 
-| Name | Repository | Needs a token |
-|---|---|---|
-| `twitchdiscordbot` | [TwitchDiscordBot](https://github.com/dxcufgb/TwitchDiscordBot) | yes (private) |
-| `comicsbot` | [DiscordComicsBot](https://github.com/dxcufgb/DiscordComicsBot) | yes (private) |
-| `foundryvtt-discord-integration` | [FoundryVTT-discord-integration](https://github.com/dxcufgb/FoundryVTT-discord-integration) | no |
-| `foundry-release-proxy` | [FoundryVTT-Private-Github-proxy](https://github.com/dxcufgb/FoundryVTT-Private-Github-proxy) | yes (private) |
-| `foundry-world-backup` | [FoundryVTT-world-backup-to-git](https://github.com/dxcufgb/FoundryVTT-world-backup-to-git) | yes (private) |
+| Name | Repository |
+|---|---|
+| `twitchdiscordbot` | [TwitchDiscordBot](https://github.com/dxcufgb/TwitchDiscordBot) |
+| `comicsbot` | [DiscordComicsBot](https://github.com/dxcufgb/DiscordComicsBot) |
+| `foundryvtt-discord-integration` | [FoundryVTT-discord-integration](https://github.com/dxcufgb/FoundryVTT-discord-integration) |
+| `foundry-release-proxy` | [FoundryVTT-Private-Github-proxy](https://github.com/dxcufgb/FoundryVTT-Private-Github-proxy) |
+| `foundry-world-backup` | [FoundryVTT-world-backup-to-git](https://github.com/dxcufgb/FoundryVTT-world-backup-to-git) |
 
 `[options]` go to that release's own `install.sh`. They are the same for all five:
 
@@ -38,25 +38,15 @@ curl -fsSL https://raw.githubusercontent.com/dxcufgb/install/main/install.sh | s
 
 Questions are asked on your terminal, so the interactive installers work through the pipe.
 
-## Private repositories: the token
+## No token needed
 
-Four of the repositories are private, so the installer needs a GitHub token that can read that one repository:
+All five repositories are public, so the installer needs no GitHub token, and neither do automatic updates.
 
-1. GitHub → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
-2. Resource owner `dxcufgb`; **Repository access → Only select repositories** → the repository you install.
-3. **Permissions → Repository permissions → Contents: Read-only**. Nothing else.
-
-The installer asks for it (input hidden), or reads it from `INSTALL_GITHUB_TOKEN`:
-
-```sh
-export INSTALL_GITHUB_TOKEN=github_pat_...
-curl -fsSL https://raw.githubusercontent.com/dxcufgb/install/main/install.sh | sudo --preserve-env=INSTALL_GITHUB_TOKEN bash -s comicsbot --yes
-```
-
-The token is sent only to `api.github.com` (GitHub redirects the actual download to its storage server, which
-gets no token), never put on a command line or printed, and passed to the release's installer in
-`INSTALL_GITHUB_TOKEN`. If you turn on automatic updates, the installer offers to keep it for them (stored
-root-only, as described in that repository's README).
+The installer still supports private repositories (none is listed now): for one, it asks for a fine-grained token
+with read-only *Contents* access to that repository (input hidden), or reads it from `INSTALL_GITHUB_TOKEN`
+(`sudo --preserve-env=INSTALL_GITHUB_TOKEN ...`). A token is sent only to `api.github.com` (GitHub redirects the
+actual download to its storage server, which gets no token), never put on a command line or printed, and passed to
+the release's installer in `INSTALL_GITHUB_TOKEN`.
 
 ## Without the one-liner
 
